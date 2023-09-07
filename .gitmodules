@@ -1,0 +1,9 @@
+[submodule "Dependencies/embed-resource"]
+	path = Dependencies/embed-resource
+	url = https://github.com/cyrilcode/embed-resource.git
+[submodule "Dependencies/glfwpp"]
+	path = Dependencies/glfwpp
+	url = https://github.com/janekb04/glfwpp
+[submodule "Dependencies/imgui"]
+	path = Dependencies/imgui
+	url = https://github.com/ocornut/imgui
