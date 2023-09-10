@@ -1,6 +1,8 @@
 ﻿cmake_minimum_required (VERSION 3.8)
 project (${PROJECT_NAME})
 
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
-endif()
+add_subdirectory ("Model")
+add_subdirectory ("View")
+add_subdirectory ("Controller")
+
+#set_target_properties (model view PROPERTIES CXX_STANDARD 20)

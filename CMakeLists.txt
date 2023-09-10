@@ -13,7 +13,7 @@ include(CMake/utils.cmake)
 # include OpenGL
 find_package (OpenGL REQUIRED)
 
-# set external dependencies list
+# set external dependencies target list
 set (dependenciesList
     OpenGL::GL
     glad
@@ -21,14 +21,16 @@ set (dependenciesList
     imgui
 )
 
-# set internal sources list
-set (ShaderLib "Shader")
+# set internal sources targets list
 set (sourcesList
-    #${ShaderLib}
+    model
+    view
+    controller
 )
 
-# Include sub-projects.
-add_subdirectory ("Dependencies")
+
+set (DependenciesDir ${PROJECT_SOURCE_DIR}/Dependencies)
+add_subdirectory (${DependenciesDir})
 
 # Create list of GLSL shaders to binary
 embed_resources(MyResources
@@ -37,14 +39,17 @@ embed_resources(MyResources
     Resources/glsl/1D/white_vert.glsl)
 
 # Create target
-add_executable (${PROJECT_NAME} "TopSystemsTest/TopSystemsTest.cpp" ${MyResources})
+add_executable (${PROJECT_NAME}
+    "TopSystemsTest/TopSystemsTest.cpp")
+set_target_properties (${PROJECT_NAME}
+    PROPERTIES
+    CXX_STANDARD 20)
 
 # Include embed-resource
 target_include_directories (${PROJECT_NAME}
-    PUBLIC Dependencies/embed-resource
     PUBLIC TopSystemsTest
 )
-# 
+
 add_subdirectory ("TopSystemsTest")
 
 # link libraries
