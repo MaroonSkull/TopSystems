@@ -1,4 +1,4 @@
-﻿cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required (VERSION 3.11)
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
@@ -28,7 +28,6 @@ set (sourcesList
     controller
 )
 
-
 set (DependenciesDir ${PROJECT_SOURCE_DIR}/Dependencies)
 add_subdirectory (${DependenciesDir})
 
@@ -40,7 +39,8 @@ embed_resources(MyResources
 
 # Create target
 add_executable (${PROJECT_NAME}
-    "TopSystemsTest/TopSystemsTest.cpp")
+    "TopSystemsTest/TopSystemsTest.cpp"
+    ${MyResources})
 set_target_properties (${PROJECT_NAME}
     PROPERTIES
     CXX_STANDARD 20)
