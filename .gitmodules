@@ -4,3 +4,7 @@
 [submodule "Dependencies/embed-resource"]
 	path = Dependencies/embed-resource
 	url = https://github.com/MaroonSkull/embed-resource.git
+[submodule "Dependencies/imgui"]
+	path = Dependencies/imgui
+	url = https://github.com/ocornut/imgui
+	branch = docking
