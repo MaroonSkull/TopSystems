@@ -2,13 +2,16 @@
 project (${PROJECT_NAME})
 
 
+add_subdirectory ("GUI")
+
 add_library (view
 	openglImguiView.cpp
-)
+ )
 
 target_link_libraries(view
 	PUBLIC
 		IView
+		GUI
 		Shader
 		GLProgram
 	PRIVATE

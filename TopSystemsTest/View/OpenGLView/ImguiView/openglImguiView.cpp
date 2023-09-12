@@ -73,12 +73,12 @@ OpenglImguiView::~OpenglImguiView() {
 	// GlfwLibrary destructor calls glfwTerminate automatically
 }
 
-void OpenglImguiView::renderImgui(const std::function<void()>& guiRenderFunc) {
+void OpenglImguiView::renderImgui() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	guiRenderFunc();
+	UI_.DrawGUI(Window_);
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -96,9 +96,7 @@ void OpenglImguiView::draw() {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// отрисовываем GUI
-	renderImgui([]() {
-		ImGui::ShowDemoWindow();
-	});
+	renderImgui();
 
 	// меняем буфер для следующего раза
 	Window_->swapBuffers();
