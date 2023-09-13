@@ -11,12 +11,12 @@
 
 Проанализировав задачу, было решено использоовать систему сборки CMake, OpenGL, а так же следующий набор библиотек:
 
-| библиотека                                                    | причина выбора |
-| ---                                                           | --- |
-| [embed-resource](https://github.com/cyrilcode/embed-resource) | Предоставляет удобный способ запаковать ресурсы (шейдеры glsl) в бинарный файл при помощи CMake. |
-| [glfwpp](https://github.com/janekb04/glfwpp)                  | Аналог классического glfw, но в более подходящем для C++ виде, в т.ч. с поддержкой удобных исключений. |
-| [glad](https://github.com/Dav1dde/glad)                       | Простой OpenGL loader, удобный в работе. |
-| [dear imgui](https://github.com/ocornut/imgui)                | Легковесная библиотека для быстрой работы с GUI, предоставляет приличное количество готовых элементов UI. |
+| библиотека                                                      | причина выбора |
+| ---                                                             | --- |
+| [Embed Resource](https://github.com/MaroonSkull/embed-resource) | Предоставляет удобный способ запаковать ресурсы (шейдеры glsl) в бинарный файл при помощи CMake. |
+| [glfwpp](https://github.com/janekb04/glfwpp)                    | Аналог классического glfw, но в более подходящем для C++ виде, в т.ч. с поддержкой удобных исключений. |
+| [glad](https://github.com/Dav1dde/glad)                         | Простой OpenGL loader, удобный в работе. |
+| [Dear ImGui](https://github.com/ocornut/imgui)                  | Мощная библиотека для быстрой разработки GUI, предоставляет приличное количество готовых элементов UI. |
 
 Все библиотеки, за исключением glad, подключены в виде [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules). Glad решено предварительно собрать и добавить в проект as is.
 
