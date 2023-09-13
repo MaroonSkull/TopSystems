@@ -4,7 +4,13 @@
 
 class GUI {
 private:
-	glfw::Window *Window_ = nullptr;
+	bool circleSegmentsOverride = false;
+	static const int circleSegmentsOverride_v_default = 15;
+	int circleSegmentsOverride_v = circleSegmentsOverride_v_default;
+
+	bool curveSegmentsOverride = false;
+	static const int curveSegmentsOverride_v_default = 15;
+	int curveSegmentsOverride_v = curveSegmentsOverride_v_default;
 
 	void ShowMainMenuBar();
 	void ShowDockSpace();
@@ -13,8 +19,5 @@ private:
 	void ShowCanvas();
 	void ShowSimpleOverlay();
 public:
-	GUI() = default;
-	~GUI() = default;
-
 	void DrawGUI(glfw::Window *Window);
 };
