@@ -20,10 +20,7 @@ add_subdirectory_checked (${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/embed-resourc
 
 # Create target
 add_executable (${PROJECT_NAME})
-set_target_properties (${PROJECT_NAME}
-    PROPERTIES
-        CXX_STANDARD 17
-)
+target_compile_features (${PROJECT_NAME} PUBLIC cxx_std_17)
 
 # include OpenGL
 find_package (OpenGL REQUIRED)
@@ -39,9 +36,8 @@ target_include_directories (${PROJECT_NAME}
 
 add_subdirectory ("TopSystemsTest")
 
-# Create list of GLSL shaders to binary
-
-embed_resources(MyResources
+# Convert GLSL shaders to binary
+embed_resources(MyResources # todo rename 1D to 2D
     Resources/glsl/1D/frag.glsl
     Resources/glsl/1D/vert.glsl
     Resources/glsl/1D/white_vert.glsl
@@ -59,6 +55,7 @@ foreach (library
     glad
     GLFWPP
     imgui
+    EmbedResource
 # sources
     model
     view

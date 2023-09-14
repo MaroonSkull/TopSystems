@@ -4,9 +4,10 @@ project (${PROJECT_NAME})
 
 add_subdirectory ("GUI")
 
-add_library (view
-	openglImguiView.cpp
-)
+add_library (view STATIC openglImguiView.cpp)
+add_dependencies (${PROJECT_NAME} view)
+
+target_include_directories (view PRIVATE ./)
 
 target_link_libraries(view
 	PUBLIC
@@ -23,7 +24,4 @@ target_link_libraries(view
 		controller
 )
 
-target_include_directories (view
-	PRIVATE
-		./
-)
+target_compile_features (view PUBLIC cxx_std_17)

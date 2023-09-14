@@ -2,19 +2,15 @@
 project (${PROJECT_NAME})
 
 
-add_library (Shader
-	Shader.cpp
-)
-target_include_directories (Shader
-	PUBLIC
-		./
-)
+add_library (Shader STATIC Shader.cpp)
+add_dependencies (${PROJECT_NAME} Shader)
+
+target_include_directories (Shader PUBLIC ./)
+
 target_link_libraries (Shader
-	PUBLIC
+	PRIVATE
 		glad
 		EmbedResource
 )
-target_compile_features (Shader
-	PUBLIC
-		cxx_std_17
-)
+
+target_compile_features (Shader PUBLIC cxx_std_17)

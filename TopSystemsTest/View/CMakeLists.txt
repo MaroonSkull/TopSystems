@@ -3,7 +3,10 @@ project (${PROJECT_NAME})
 
 
 add_library(IView INTERFACE)
-target_compile_features(IView INTERFACE cxx_std_17)
+add_dependencies (${PROJECT_NAME} IView)
+
 target_include_directories(IView INTERFACE ./)
+
+target_compile_features(IView INTERFACE cxx_std_17)
 
 add_subdirectory ("OpenGLView")
