@@ -1,4 +1,4 @@
-#include <GLProgram.hpp>
+﻿#include <GLProgram.hpp>
 #include <sstream>
 
 
@@ -37,6 +37,9 @@ void GLProgram::linkProgram() const {
 			<< infoLog;
 		throw std::runtime_error{ err.str() };
 	}
+
+	// todo тут пора бы glDeleteShader() по идее
+	// https://stackoverflow.com/questions/9113154/proper-way-to-delete-glsl-shader
 }
 
 void GLProgram::useProgram() const {
