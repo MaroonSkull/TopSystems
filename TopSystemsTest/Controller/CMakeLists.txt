@@ -2,7 +2,8 @@
 project (${PROJECT_NAME})
 
 
-add_library (controller "openglImguiController.cpp")
+add_library (controller STATIC openglImguiController.cpp)
 
-target_include_directories (controller
-	PRIVATE ./)
+target_compile_features (controller PUBLIC cxx_std_17)
+
+target_include_directories (controller PRIVATE ./)

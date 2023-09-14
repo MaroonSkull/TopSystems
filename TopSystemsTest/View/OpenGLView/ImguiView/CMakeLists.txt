@@ -6,15 +6,16 @@ add_subdirectory ("GUI")
 
 add_library (view
 	openglImguiView.cpp
- )
+)
 
 target_link_libraries(view
 	PUBLIC
 		IView
-		GUI
 		Shader
 		GLProgram
+		GUI
 	PRIVATE
+		EmbedResource
 		glad
 		GLFWPP
 		imgui
@@ -23,8 +24,6 @@ target_link_libraries(view
 )
 
 target_include_directories (view
-    PUBLIC
-		${DependenciesDir}/embed-resource
 	PRIVATE
 		./
 )

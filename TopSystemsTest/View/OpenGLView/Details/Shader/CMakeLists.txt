@@ -7,12 +7,12 @@ add_library (Shader
 )
 target_include_directories (Shader
 	PUBLIC
-		${DependenciesDir}/embed-resource
 		./
 )
 target_link_libraries (Shader
 	PUBLIC
 		glad
+		EmbedResource
 )
 target_compile_features (Shader
 	PUBLIC

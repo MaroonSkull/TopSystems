@@ -2,8 +2,8 @@
 project (${PROJECT_NAME})
 
 
-add_library (model "flatFigureModel.cpp")
+add_library (model STATIC flatFigureModel.cpp)
 
-target_include_directories (model
-	PRIVATE ./)
-	
+target_compile_features (model PUBLIC cxx_std_17)
+
+target_include_directories (model PRIVATE ./)

@@ -3,12 +3,14 @@ cmake_minimum_required (VERSION 3.19)
 project (${PROJECT_NAME} LANGUAGES CXX)
 
 #glad
-add_subdirectory_checked (${CMAKE_CURRENT_SOURCE_DIR}/glad)
+add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/glad)
+add_dependencies(${PROJECT_NAME} glad)
 
 # GLFWPP
 # glfwpp has public linkage of glfw
 set(GLFWPP_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # disable building examples
 add_subdirectory_checked (${CMAKE_CURRENT_SOURCE_DIR}/glfwpp)
+add_dependencies(${PROJECT_NAME} GLFWPP)
 
 # imgui
 add_library (imgui
@@ -30,5 +32,11 @@ if (WIN32 AND NOT (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC"))
     target_link_libraries(imgui "Imm32.lib")
 endif()
 
+add_dependencies(${PROJECT_NAME} imgui)
+
 #embed-resource
-add_subdirectory_checked (${CMAKE_CURRENT_SOURCE_DIR}/embed-resource)
+add_library (EmbedResource INTERFACE)
+target_include_directories(EmbedResource INTERFACE
+    embed-resource
+)
+add_dependencies(${PROJECT_NAME} EmbedResource)
