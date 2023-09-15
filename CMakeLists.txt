@@ -25,13 +25,11 @@ target_compile_features (${PROJECT_NAME} PUBLIC cxx_std_17)
 # include OpenGL
 find_package (OpenGL REQUIRED)
 
-set (DependenciesDir ${PROJECT_SOURCE_DIR}/Dependencies)
+add_subdirectory ("Dependencies")
 
-add_subdirectory (${DependenciesDir})
-
-# Include embed-resource
 target_include_directories (${PROJECT_NAME}
     PUBLIC TopSystemsTest
+    PUBLIC ${STAGING_DIR}/include/ # spdlog
 )
 
 add_subdirectory ("TopSystemsTest")

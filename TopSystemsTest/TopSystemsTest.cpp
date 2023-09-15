@@ -16,18 +16,21 @@ int main() {
 			// Controller->control();
 			glfw::pollEvents();
 		}
+
+		// Under VisualStudio, this must be called before main finishes to workaround a known VS issue
+		spdlog::drop_all();
 	}
 	catch (const std::runtime_error& e) {
-		std::cerr << "std::runtime_error: " << e.what() << std::endl;
+		spdlog::error("std::runtime_error: {}", e.what());
 	}
 	catch (const std::exception& e) {
-		std::cerr << "std::exception: " << e.what() << std::endl;
+		spdlog::error("std::exception: {}", e.what());
 	}
 	catch (const char* e) {
-		std::cerr << e << std::endl;
+		spdlog::error(e, "\r\n");
 	}
 	catch (...) {
-		std::cerr << "Unknown exception!" << std::endl;
+		spdlog::error("Unknown exception!");
 	}
 	return 0;
 }

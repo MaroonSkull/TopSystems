@@ -1,4 +1,4 @@
-﻿#include <iostream>
+﻿#include <spdlog/spdlog.h>
 #include <sstream>
 #include <openglImguiView.hpp>
 
@@ -20,7 +20,7 @@ OpenglImguiView::OpenglImguiView() : GLFW_(glfw::init()) {
 		if (version == 0)
 			throw std::runtime_error{ "Failed to initialize OpenGL context" };
 
-		std::cout << "Loaded OpenGL " << GLAD_VERSION_MAJOR(version) << "." << GLAD_VERSION_MINOR(version) << std::endl;
+		spdlog::info("Loaded OpenGL {}.{}", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
 
 		// Shaiders
 		Fragment_ = new Shader(LOAD_RESOURCE(Resources_glsl_1D_frag_glsl), Shader::Fragment);
@@ -54,7 +54,7 @@ OpenglImguiView::OpenglImguiView() : GLFW_(glfw::init()) {
 	}
 	catch (const glfw::Error& e) {
 		// todo replace "View" with file name macro
-		std::cerr << "glfwpp exception in View!" << std::endl;
+		spdlog::error("glfwpp exception in View!");
 		throw e;
 	}
 }

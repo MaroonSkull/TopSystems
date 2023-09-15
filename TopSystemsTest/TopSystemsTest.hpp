@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <iostream>
+#include <spdlog/spdlog.h>
 
 #include <Model/flatFigureModel.hpp>
 #include <View/OpenGLView/ImguiView/openglImguiView.hpp>

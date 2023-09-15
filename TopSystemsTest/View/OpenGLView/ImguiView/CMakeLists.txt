@@ -1,13 +1,15 @@
 ﻿cmake_minimum_required (VERSION 3.8)
 project (${PROJECT_NAME})
 
-
 add_subdirectory ("GUI")
 
 add_library (view STATIC openglImguiView.cpp)
 add_dependencies (${PROJECT_NAME} view)
 
-target_include_directories (view PRIVATE ./)
+target_include_directories (view
+	PRIVATE ./
+	PRIVATE ${STAGING_DIR}/include/ # spdlog
+)
 
 target_link_libraries(view
 	PUBLIC

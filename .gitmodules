@@ -8,3 +8,6 @@
 	path = Dependencies/imgui
 	url = https://github.com/ocornut/imgui
 	branch = docking
+[submodule "Dependencies/spdlog"]
+	path = Dependencies/spdlog
+	url = https://github.com/gabime/spdlog
