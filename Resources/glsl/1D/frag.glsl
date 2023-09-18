@@ -1,9 +1,8 @@
-#version 330 core
+#version 330
 
-in vec3 pointColor;
+out vec4 color;
 
-layout(location = 0) out vec3 color;
-
-void main() {
-	color = vec3(pointColor.r, pointColor.g, pointColor.b);
+void main()
+{
+	color = vec4(0.0, 1.0, 0.0, 1.0);
 }

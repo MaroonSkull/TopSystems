@@ -1,12 +1,8 @@
-#version 330 core
+#version 330
 
-in vec2 UV;
+layout(location = 0) in vec3 pos;
 
-out vec3 pointColor;
-
-uniform sampler2D renderedTexture;
-uniform float time;
-
-void main(){
-    pointColor = vec3(1, 2, 255);
+void main()
+{
+	gl_Position = vec4(0.9 * pos.x, 0.9 * pos.y, 0.5 * pos.z, 1.0);
 }
