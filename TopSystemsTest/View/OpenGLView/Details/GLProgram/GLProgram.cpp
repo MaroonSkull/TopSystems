@@ -26,11 +26,14 @@ void GLProgram::linkProgram() const {
 	glLinkProgram(programId_);
 
 	// Check shader program linking errors
-	int32_t success;
-	char infoLog[512];
+	GLint success;
+	GLint InfoLogLength;
 	glGetProgramiv(programId_, GL_LINK_STATUS, &success);
+	glGetProgramiv(programId_, GL_INFO_LOG_LENGTH, &InfoLogLength);
+	std::string infoLog{};
+	infoLog.resize(static_cast<size_t>(InfoLogLength+1)); // для \0
 	if (!success) {
-		glGetProgramInfoLog(programId_, 512, nullptr, infoLog);
+		glGetProgramInfoLog(programId_, InfoLogLength, nullptr, &infoLog[0]);
 		std::stringstream err;
 		err << programId_
 			<< " linking failed: " << std::endl
@@ -40,8 +43,16 @@ void GLProgram::linkProgram() const {
 
 	// todo тут пора бы glDeleteShader() по идее
 	// https://stackoverflow.com/questions/9113154/proper-way-to-delete-glsl-shader
+	// как потом работать с UBO?
 }
 
 void GLProgram::useProgram() const {
 	glUseProgram(programId_);
+}
+
+std::optional<const Shader *>GLProgram::getShader(Shader::type desiredShaderType) const {
+	for(auto &ConcreteShader : shadersList_)
+		if(ConcreteShader->getShaderType() == desiredShaderType)
+			return ConcreteShader;
+	return std::nullopt;
 }

@@ -3,6 +3,7 @@
 #include <glad/gl.h>
 #include <Shader.hpp>
 #include <set>
+#include <optional>
 
 class GLProgram {
 private:
@@ -16,4 +17,6 @@ public:
 	void attachShader(const Shader*);
 	void linkProgram() const;
 	void useProgram() const;
+
+	std::optional<const Shader *>getShader(Shader::type) const;
 };
