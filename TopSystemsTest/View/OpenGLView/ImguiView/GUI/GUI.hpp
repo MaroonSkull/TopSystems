@@ -1,13 +1,12 @@
-#pragma once
+﻿#pragma once
 #include <glfwpp/glfwpp.h>
 #include <imgui.h>
-#include <imgui_internal.h> // ��� docking
-#include <functional>
+#include <imgui_internal.h> // для docking
 
 class GUI {
 private:
 	ImGuiDockNodeFlags dockFlags_ = ImGuiDockNodeFlags_None;
-	ImGuiID dockId_{}; // id ������������� ����, � �������� ����� ������� ��� ������ ������
+	ImGuiID dockId_{}; // id родительского окна, к которому будем цеплять все прочие панели
 	ImGuiID dockIdTools, dockIdLog, dockIdMouse;
 	ImTextureID texture;
 
@@ -24,8 +23,9 @@ private:
 	void ShowDockSpace();
 	void ShowLog();
 	void ShowSidePanel();
-	void ShowCanvas(std::function<ImTextureID(ImVec2)> getTexture);
-	void ShowSimpleOverlay();
+	ImVec2 ShowCanvas(ImTextureID renderTexture);
+	// void ShowListPanel()
+	void ShowSimpleOverlay(); // пусть плавает за мышью и показывает её координаты, если они в пределах канваса
 public:
-	void DrawGUI(std::function<ImTextureID(ImVec2)> getTexture);
+	ImVec2 DrawGUI(ImTextureID renderTexture);
 };

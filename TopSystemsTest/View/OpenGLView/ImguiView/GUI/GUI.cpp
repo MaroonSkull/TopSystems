@@ -72,18 +72,20 @@ void GUI::ShowSidePanel() {
     End();
 }
 
-void GUI::ShowCanvas(std::function<ImTextureID(ImVec2)> renderTexture) {
+ImVec2 GUI::ShowCanvas(ImTextureID renderTexture) {
+    ImVec2 wsize{};
     if(Begin("Canvas")) {
         // Using a Child allow to fill all the space of the window.
         // It also alows customization
         ImGui::BeginChild("GameRender");
         // Get the size of the child (i.e. the whole draw size of the windows).
-        ImVec2 wsize = ImGui::GetWindowSize();
+        wsize = ImGui::GetWindowSize();
         // Because I use the texture from OpenGL, I need to invert the V from the UV.
-        ImGui::Image(renderTexture(wsize), wsize, ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::Image(renderTexture, wsize, ImVec2(0, 1), ImVec2(1, 0));
         ImGui::EndChild();
     }
     End();
+    return wsize;
 }
 
 void GUI::ShowSimpleOverlay() {
@@ -103,13 +105,15 @@ void GUI::ShowSimpleOverlay() {
     End();
 }
 
-void GUI::DrawGUI(std::function<ImTextureID(ImVec2)> getTexture) {
+ImVec2 GUI::DrawGUI(ImTextureID renderTexture) {
 	ShowMainMenuBar();
 	ShowDockSpace();
 	ShowLog();
 	ShowSidePanel();
-	ShowCanvas(getTexture);
+	auto wsize = ShowCanvas(renderTexture);
 	ShowSimpleOverlay();
 
 	ShowDemoWindow();
+
+    return wsize;
 }
