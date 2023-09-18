@@ -11,8 +11,6 @@
 #include <Shader.hpp>
 #include <GLProgram.hpp>
 
-
-
 class OpenglImguiView final : public IView {
 private:
 	glfw::GlfwLibrary GLFW_; // RAII
@@ -22,8 +20,7 @@ private:
 	Shader *Fragment_ = nullptr;
 	GLProgram* Pipeline_ = nullptr;
 
-
-	void renderImgui();
+	void renderImgui(std::function<ImTextureID(ImVec2)> renderTexture);
 public:
 	// init glfwpp, glad, window, imgui
 	OpenglImguiView();
