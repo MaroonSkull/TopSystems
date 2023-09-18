@@ -1,6 +1,24 @@
-﻿#include <GLProgram.hpp>
+﻿#include "GLProgram.hpp"
+#include <GLProgram.hpp>
 #include <sstream>
 
+
+void GLProgram::checkProgram(GLenum pname, std::string_view msg) const {
+	GLint success;
+	GLint InfoLogLength;
+	glGetProgramiv(programId_, pname, &success);
+	glGetProgramiv(programId_, GL_INFO_LOG_LENGTH, &InfoLogLength);
+	std::string infoLog{};
+	infoLog.resize(static_cast<size_t>(InfoLogLength + 1)); // для \0
+	if (!success) {
+		glGetProgramInfoLog(programId_, InfoLogLength, nullptr, &infoLog[0]);
+		std::stringstream err;
+		err << "Program #" << programId_
+			<< " " << msg << ": " << std::endl
+			<< infoLog;
+		throw std::runtime_error{ err.str() };
+	}
+}
 
 GLProgram::GLProgram() {
 	programId_ = glCreateProgram();
@@ -25,21 +43,11 @@ void GLProgram::linkProgram() const {
 
 	glLinkProgram(programId_);
 
-	// Check shader program linking errors
-	GLint success;
-	GLint InfoLogLength;
-	glGetProgramiv(programId_, GL_LINK_STATUS, &success);
-	glGetProgramiv(programId_, GL_INFO_LOG_LENGTH, &InfoLogLength);
-	std::string infoLog{};
-	infoLog.resize(static_cast<size_t>(InfoLogLength+1)); // для \0
-	if (!success) {
-		glGetProgramInfoLog(programId_, InfoLogLength, nullptr, &infoLog[0]);
-		std::stringstream err;
-		err << programId_
-			<< " linking failed: " << std::endl
-			<< infoLog;
-		throw std::runtime_error{ err.str() };
-	}
+	// Check shader program errors
+	checkProgram(GL_LINK_STATUS, "linking failed");
+	
+	glValidateProgram(programId_);
+	checkProgram(GL_VALIDATE_STATUS, "validate failed");
 
 	// todo тут пора бы glDeleteShader() по идее
 	// https://stackoverflow.com/questions/9113154/proper-way-to-delete-glsl-shader
