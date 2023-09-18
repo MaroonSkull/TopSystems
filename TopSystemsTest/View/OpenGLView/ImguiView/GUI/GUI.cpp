@@ -1,59 +1,115 @@
 #include <GUI.hpp>
+using namespace ImGui;
 
 void GUI::ShowMainMenuBar() {
-    if(ImGui::BeginMainMenuBar()) {
-        if(ImGui::BeginMenu("Menu")) {
-            if(ImGui::BeginMenu("Examples")) {
-                if(ImGui::MenuItem("1")) {}
-                if(ImGui::MenuItem("2")) {}
-                if(ImGui::MenuItem("3")) {}
-                ImGui::EndMenu();
+    if(BeginMainMenuBar()) {
+        if(BeginMenu("Menu")) {
+            if(BeginMenu("Examples")) {
+                if(MenuItem("1")) {}
+                if(MenuItem("2")) {}
+                if(MenuItem("3")) {}
+                EndMenu();
             }
-            ImGui::EndMenu();
+            EndMenu();
         }
-        if(ImGui::BeginMenu("Edit")) {
-            if(ImGui::MenuItem("Undo", "CTRL+Z")) {}
-            if(ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
-            ImGui::EndMenu();
+        if(BeginMenu("Edit")) {
+            if(MenuItem("Undo", "CTRL+Z")) {}
+            if(MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
+            EndMenu();
         }
-        if(ImGui::BeginMenu("View")) {
-            if(ImGui::MenuItem("Grid")) {}
-            if(ImGui::MenuItem("Sized", NULL, false, false)) {}  // Disabled item
-            ImGui::Separator();
+        if(BeginMenu("View")) {
+            if(MenuItem("Grid")) {}
+            if(MenuItem("Sized", NULL, false, false)) {}  // Disabled item
+            Separator();
             
-            if(ImGui::Checkbox("##circlesegmentoverride", &circleSegmentsOverride))
+            if(Checkbox("##circlesegmentoverride", &circleSegmentsOverride))
                 circleSegmentsOverride_v = circleSegmentsOverride_v_default;
-            ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-            circleSegmentsOverride |= ImGui::SliderInt("Circle segments override", &circleSegmentsOverride_v, 3, 40);
-            if(ImGui::Checkbox("##curvessegmentoverride", &curveSegmentsOverride))
+            SameLine(0.0f, GetStyle().ItemInnerSpacing.x);
+            circleSegmentsOverride |= SliderInt("Circle segments override", &circleSegmentsOverride_v, 3, 40);
+            if(Checkbox("##curvessegmentoverride", &curveSegmentsOverride))
                 curveSegmentsOverride_v = curveSegmentsOverride_v_default;
-            ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-            curveSegmentsOverride |= ImGui::SliderInt("Curves segments override", &curveSegmentsOverride_v, 3, 40);
-            ImGui::EndMenu();
+            SameLine(0.0f, GetStyle().ItemInnerSpacing.x);
+            curveSegmentsOverride |= SliderInt("Curves segments override", &curveSegmentsOverride_v, 3, 40);
+            EndMenu();
         }
-        ImGui::EndMainMenuBar();
+        EndMainMenuBar();
     }
 }
 
 void GUI::ShowDockSpace() {
-    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+    dockId_ = DockSpaceOverViewport(GetMainViewport()); // move inside if
+    static bool init = true;
+    if(init) {
+        init = false;
+        DockBuilderRemoveNode(dockId_);
+        dockId_ = DockBuilderAddNode(dockId_, dockFlags_);
+        DockBuilderSetNodeSize(dockId_, GetMainViewport()->Size);
+
+        dockIdLog = DockBuilderSplitNode(dockId_, ImGuiDir_Down, 0.15f, nullptr, &dockId_);
+        dockIdMouse = DockBuilderSplitNode(dockIdLog, ImGuiDir_Right, 0.25f, &dockIdMouse, &dockIdLog);
+        dockIdTools = DockBuilderSplitNode(dockId_, ImGuiDir_Right, 0.25f, nullptr, &dockId_);
+
+        DockBuilderDockWindow("Canvas", dockId_);
+        DockBuilderDockWindow("Tools", dockIdTools);
+        DockBuilderDockWindow("Log", dockIdLog);
+        DockBuilderDockWindow("Mouse coords", dockIdMouse);
+
+        DockBuilderFinish(dockId_);
+    }
 }
 
-void GUI::ShowLog() {}
+void GUI::ShowLog() {
+    if(Begin("Log")) {
+        Text("Just logs here");
+    }
+    End();
+}
 
-void GUI::ShowSidePanel() {}
+void GUI::ShowSidePanel() {
+    if(Begin("Tools")) {
+        Text("Side panel with tools");
+    }
+    End();
+}
 
-void GUI::ShowCanvas() {}
+void GUI::ShowCanvas(std::function<ImTextureID(ImVec2)> renderTexture) {
+    if(Begin("Canvas")) {
+        // Using a Child allow to fill all the space of the window.
+        // It also alows customization
+        ImGui::BeginChild("GameRender");
+        // Get the size of the child (i.e. the whole draw size of the windows).
+        ImVec2 wsize = ImGui::GetWindowSize();
+        // Because I use the texture from OpenGL, I need to invert the V from the UV.
+        ImGui::Image(renderTexture(wsize), wsize, ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::EndChild();
+    }
+    End();
+}
 
-void GUI::ShowSimpleOverlay() {}
+void GUI::ShowSimpleOverlay() {
+    ImGuiIO &io = GetIO();
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_None
+        | ImGuiWindowFlags_NoDecoration
+        | ImGuiWindowFlags_AlwaysAutoResize
+        | ImGuiWindowFlags_NoFocusOnAppearing
+        | ImGuiWindowFlags_NoNav;
+    SetNextWindowBgAlpha(0.35f); // Transparent background
+    if(Begin("Mouse coords", nullptr, window_flags)) {
+        if(IsMousePosValid())
+            Text("%.1f,%.1f", io.MousePos.x, io.MousePos.y);
+        else
+            Text("<invalid>");
+    }
+    End();
+}
 
-void GUI::DrawGUI(glfw::Window *Window) {
+void GUI::DrawGUI(std::function<ImTextureID(ImVec2)> getTexture) {
 	ShowMainMenuBar();
 	ShowDockSpace();
 	ShowLog();
 	ShowSidePanel();
-	ShowCanvas();
+	ShowCanvas(getTexture);
 	ShowSimpleOverlay();
 
-	ImGui::ShowDemoWindow();
+	ShowDemoWindow();
 }
