@@ -2,8 +2,8 @@
 
 in vec3 pointColor;
 
-out vec4 FragColor;
+layout(location = 0) out vec3 color;
 
 void main() {
-	FragColor = vec4(pointColor.r, pointColor.g, pointColor.b, 1.0f);
+	color = vec3(pointColor.r, pointColor.g, pointColor.b);
 }
