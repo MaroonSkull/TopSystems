@@ -8,7 +8,7 @@ add_dependencies (${PROJECT_NAME} view)
 
 target_include_directories (view
 	PRIVATE ./
-	PRIVATE ${STAGING_DIR}/include/ # spdlog
+	PUBLIC ${STAGING_DIR}/include/ # spdlog
 )
 
 target_link_libraries(view
