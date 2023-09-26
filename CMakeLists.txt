@@ -56,8 +56,8 @@ foreach (library
     EmbedResource
 # sources
     model
-    view
     controller
+    view
 )
     target_link_libraries (${PROJECT_NAME} PRIVATE ${library})
 endforeach ()

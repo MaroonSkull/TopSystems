@@ -11,7 +11,11 @@
 #include <Shader.hpp>
 #include <GLProgram.hpp>
 
+#include <OpenGLController/ImguiController/openglImguiController.hpp>
+#include <flatFigureModel.hpp>
+
 class OpenglImguiView final : public IView {
+	friend class OpenglImguiController;
 private:
 	glfw::GlfwLibrary GLFW_; // RAII
 	glfw::Window* Window_ = nullptr;
@@ -27,16 +31,18 @@ private:
 	GLuint RBO_{}; // rendering buffer object
 	GLuint textureId_{}; // the texture id we'll need later to create a texture
 	bool isRescaled_{ false };
+	// todo tmp, move to model
+	std::vector<GLfloat> vertices_{};
 
 	//creates the vertex arrays and buffers
 	void create_triangle();
 	void create_framebuffer();
 	void rescale_framebuffer();
 
-	void renderImgui(ImTextureID renderTexture);
+	std::optional<ImVec2> renderImgui(ImTextureID renderTexture);
 public:
 	// init glfwpp, glad, window, imgui
-	OpenglImguiView();
+	OpenglImguiView(FlatFigureModel*, IController*);
 	~OpenglImguiView();
 
 	void draw();

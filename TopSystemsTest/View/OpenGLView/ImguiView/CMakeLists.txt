@@ -13,15 +13,15 @@ target_include_directories (view
 
 target_link_libraries(view
 	PUBLIC
+		glad
+		GLFWPP
+		imgui
+		EmbedResource
 		IView
 		Shader
 		GLProgram
 		GUI
 	PRIVATE
-		EmbedResource
-		glad
-		GLFWPP
-		imgui
 		model
 		controller
 )

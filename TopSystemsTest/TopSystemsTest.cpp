@@ -2,19 +2,17 @@
 
 int main() {
 	try {
-		IView *View = new OpenglImguiView();
+		//model here
+		FlatFigureModel* pModel = new FlatFigureModel();
+		IController *pController = new OpenglImguiController(pModel);
+		IView* pView = new OpenglImguiView(pModel, pController);
 
-		// тут надо накинуть обработчики в controller
-		// можно передать вью в контроллер при создании, чтобы контроллер сам к этой вью подключился
-		// wnd.keyEvent.setCallback([](glfw::Window&, glfw::KeyCode, int, glfw::KeyState, glfw::ModifierKeyBit) {
-		//	std::cout << "hi";
-		// });
-
-		while (!View->shouldClose()) {
-			View->draw();
-			// передаём управление в обработку ввода
-			// Controller->control();
+		while (!pView->shouldClose()) {
+			// отлавливаем все события
 			glfw::pollEvents();
+
+
+			pView->draw();
 		}
 
 		// Under VisualStudio, this must be called before main finishes to workaround a known VS issue

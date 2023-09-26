@@ -1,8 +1,8 @@
-﻿#include <spdlog/spdlog.h>
+﻿#include <openglImguiView.hpp>
+#include <spdlog/spdlog.h>
 #include <sstream>
-#include <openglImguiView.hpp>
 
-OpenglImguiView::OpenglImguiView() : GLFW_(glfw::init()) {
+OpenglImguiView::OpenglImguiView(FlatFigureModel* pModel, IController* pController) : GLFW_(glfw::init()) {
 	try {
 		// Window
 		glfw::WindowHints hints;
@@ -25,6 +25,10 @@ OpenglImguiView::OpenglImguiView() : GLFW_(glfw::init()) {
 
 		spdlog::info("Loaded OpenGL {}.{}", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
 
+
+		glViewport(0, 0, frameWidth_, frameHeight_);
+		create_triangle();
+
 		// Shaiders
 		Fragment_ = new Shader(LOAD_RESOURCE(Resources_glsl_1D_frag_glsl), Shader::Fragment);
 		Vertex_ = new Shader(LOAD_RESOURCE(Resources_glsl_1D_vert_glsl), Shader::Vertex);
@@ -33,10 +37,11 @@ OpenglImguiView::OpenglImguiView() : GLFW_(glfw::init()) {
 		Pipeline_ = new GLProgram();
 		Pipeline_->attachShader(Fragment_);
 		Pipeline_->attachShader(Vertex_);
-
 		Pipeline_->linkProgram();
 		Fragment_->deleteShader();
 		Vertex_->deleteShader();
+
+		create_framebuffer();
 
 		// Imgui
 		IMGUI_CHECKVERSION();
@@ -59,9 +64,6 @@ OpenglImguiView::OpenglImguiView() : GLFW_(glfw::init()) {
 		if (!ImGui_ImplOpenGL3_Init("#version 330"))
 			throw std::runtime_error{ "ImGui_ImplOpenGL3_Init return false." };
 
-		glViewport(0, 0, frameWidth_, frameHeight_);
-		create_triangle();
-		create_framebuffer();
 	}
 	catch (const glfw::Error& e) {
 		// todo replace "View" with file name macro
@@ -75,6 +77,11 @@ OpenglImguiView::~OpenglImguiView() {
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 
+	glDeleteFramebuffers(1, &FBO_);
+	glDeleteTextures(1, &textureId_);
+	glDeleteRenderbuffers(1, &RBO_);
+	// todo glDeleteVertexArrays(...
+
 	delete Pipeline_;
 
 	delete Vertex_;
@@ -85,18 +92,20 @@ OpenglImguiView::~OpenglImguiView() {
 }
 
 void OpenglImguiView::create_triangle() {
-	GLfloat vertices[] = {
+	vertices_ = { {
 		-1.0f, -1.0f, 0.0f, // 1. vertex x, y, z
 		1.0f, -1.0f, 0.0f, // 2. vertex ...
 		0.0f, 1.0f, 0.0f // etc... 
-	};
+	} };
 
 	glGenVertexArrays(1, &VAO_);
 	glBindVertexArray(VAO_);
 
 	glGenBuffers(1, &VBO_);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	// GL_DYNAMIC_DRAW - будем интенсивно менять данные.
+	// Можно ещё попробовать STREAM
+	glBufferData(GL_ARRAY_BUFFER, vertices_.size() * sizeof(vertices_.at(0)), vertices_.data(), GL_DYNAMIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
@@ -142,31 +151,51 @@ void OpenglImguiView::rescale_framebuffer() {
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO_);
 }
 
-void OpenglImguiView::renderImgui(ImTextureID renderTexture) {
+std::optional<ImVec2> OpenglImguiView::renderImgui(ImTextureID renderTexture) {
 	ImGui::NewFrame();
 
 	auto sizes = UI_.DrawGUI(renderTexture);
-	if (frameWidth_ != sizes.x || frameHeight_ != sizes.y) {
+	if (frameWidth_ != sizes.first.x || frameHeight_ != sizes.first.y) {
 		isRescaled_ = true;
-		frameWidth_ = sizes.x;
-		frameHeight_ = sizes.y;
+		frameWidth_ = sizes.first.x;
+		frameHeight_ = sizes.first.y;
 	}
 
 	ImGui::Render();
+	return sizes.second;
 }
 
 void OpenglImguiView::draw() {
-	// отрисовываем GUI вместе с тем, что лежит в FBO с прошлого кадра
-	// решение некрасивое, но альтернатив для imgui я пока не нашёл
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
-	renderImgui((ImTextureID)NULL);
-		
+
+	auto mousePosition = renderImgui((ImTextureID)textureId_);
+	if (mousePosition.has_value()) {
+		// передаём в контроллер в обязательном порядке, пусть он разбирается
+		// convert to normalised coords
+		auto normX = mousePosition.value().x * (frameWidth_ / 2.0 + 1.0);
+		auto normY = mousePosition.value().y * (-frameHeight_ / 2.0 - 1.0);
+		vertices_.at(0) = normX;
+		vertices_.at(1) = normY;
+	}
 	// Render on the whole framebuffer
 	glViewport(0, 0, frameWidth_, frameHeight_);
 	// Render to our framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO_);
+	if (isRescaled_)
+		rescale_framebuffer();
 
+	Pipeline_->useProgram();
+
+	glClearColor(0.9f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glBindVertexArray(VAO_);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	glBindVertexArray(0);
+	glUseProgram(0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
