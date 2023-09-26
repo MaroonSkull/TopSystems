@@ -8,7 +8,12 @@ private:
 	ImGuiDockNodeFlags dockFlags_ = ImGuiDockNodeFlags_None;
 	ImGuiID dockId_{}; // id родительского окна, к которому будем цеплять все прочие панели
 	ImGuiID dockIdTools, dockIdLog, dockIdMouse;
+	ImVec2 mouseOverlayPosition_;
+	ImVec2 mousePositionAbsolute_;
 	ImTextureID texture;
+	ImGuiWindowFlags canvasFlags_ = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoInputs;
+	bool isCanvasHovered_{};
+	ImVec2 mousePositionRelative_{};
 
 	bool circleSegmentsOverride = false;
 	static const int circleSegmentsOverride_v_default = 15;
@@ -27,5 +32,5 @@ private:
 	// void ShowListPanel()
 	void ShowSimpleOverlay(); // пусть плавает за мышью и показывает её координаты, если они в пределах канваса
 public:
-	ImVec2 DrawGUI(ImTextureID renderTexture);
+	std::pair<ImVec2, std::optional<ImVec2>> DrawGUI(ImTextureID renderTexture);
 };

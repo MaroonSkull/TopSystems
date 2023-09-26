@@ -46,7 +46,6 @@ void GUI::ShowDockSpace() {
         DockBuilderSetNodeSize(dockId_, GetMainViewport()->Size);
 
         dockIdLog = DockBuilderSplitNode(dockId_, ImGuiDir_Down, 0.15f, nullptr, &dockId_);
-        dockIdMouse = DockBuilderSplitNode(dockIdLog, ImGuiDir_Right, 0.25f, &dockIdMouse, &dockIdLog);
         dockIdTools = DockBuilderSplitNode(dockId_, ImGuiDir_Right, 0.25f, nullptr, &dockId_);
 
         DockBuilderDockWindow("Canvas", dockId_);
@@ -73,47 +72,61 @@ void GUI::ShowSidePanel() {
 }
 
 ImVec2 GUI::ShowCanvas(ImTextureID renderTexture) {
-    ImVec2 wsize{};
-    if(Begin("Canvas")) {
+    ImVec2 canvasSize{};
+    ImVec2 screenPositionAbsolute{};
+    if (Begin("Canvas", nullptr, canvasFlags_)) {
         // Using a Child allow to fill all the space of the window.
         // It also alows customization
-        ImGui::BeginChild("GameRender");
+        BeginChild("##Canvas", ImVec2(0.0f, 0.0f), false, ImGuiWindowFlags_NoMove);
         // Get the size of the child (i.e. the whole draw size of the windows).
-        wsize = ImGui::GetWindowSize();
+        canvasSize = GetWindowSize();
+
         // Because I use the texture from OpenGL, I need to invert the V from the UV.
-        ImGui::Image(renderTexture, wsize, ImVec2(0, 1), ImVec2(1, 0));
-        ImGui::EndChild();
+        Image(renderTexture, canvasSize, ImVec2(0, 1), ImVec2(1, 0));
+        isCanvasHovered_ = IsItemHovered();
+        mousePositionAbsolute_ = GetMousePos();
+        screenPositionAbsolute = GetItemRectMin();
+        mousePositionRelative_ = ImVec2(mousePositionAbsolute_.x - screenPositionAbsolute.x, mousePositionAbsolute_.y - screenPositionAbsolute.y);
+
+        EndChild();
     }
     End();
-    return wsize;
+    return canvasSize;
 }
 
 void GUI::ShowSimpleOverlay() {
-    ImGuiIO &io = GetIO();
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_None
         | ImGuiWindowFlags_NoDecoration
         | ImGuiWindowFlags_AlwaysAutoResize
         | ImGuiWindowFlags_NoFocusOnAppearing
         | ImGuiWindowFlags_NoNav;
     SetNextWindowBgAlpha(0.35f); // Transparent background
+    ImVec2 overlayPos = mousePositionAbsolute_;
+    overlayPos.x += 16;
+    overlayPos.y += 24;
+    SetNextWindowPos(overlayPos, ImGuiCond_Always);
+    SetNextWindowViewport(GetMainViewport()->ID);
+
     if(Begin("Mouse coords", nullptr, window_flags)) {
         if(IsMousePosValid())
-            Text("%.1f,%.1f", io.MousePos.x, io.MousePos.y);
+            Text("%.1f,%.1f", mousePositionRelative_.x, mousePositionRelative_.y);
         else
             Text("<invalid>");
     }
     End();
 }
 
-ImVec2 GUI::DrawGUI(ImTextureID renderTexture) {
+std::pair<ImVec2, std::optional<ImVec2>> GUI::DrawGUI(ImTextureID renderTexture) {
 	ShowMainMenuBar();
 	ShowDockSpace();
 	ShowLog();
 	ShowSidePanel();
-	auto wsize = ShowCanvas(renderTexture);
-	ShowSimpleOverlay();
+	auto canvasSize = ShowCanvas(renderTexture);
+	if (isCanvasHovered_) ShowSimpleOverlay();
 
 	ShowDemoWindow();
 
-    return wsize;
+    return (isCanvasHovered_) ?
+        std::pair<ImVec2, std::optional<ImVec2>>(canvasSize, mousePositionRelative_) :
+        std::pair<ImVec2, std::optional<ImVec2>>(canvasSize, std::nullopt);
 }
