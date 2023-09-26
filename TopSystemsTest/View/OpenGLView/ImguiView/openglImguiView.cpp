@@ -35,6 +35,8 @@ OpenglImguiView::OpenglImguiView() : GLFW_(glfw::init()) {
 		Pipeline_->attachShader(Vertex_);
 
 		Pipeline_->linkProgram();
+		Fragment_->deleteShader();
+		Vertex_->deleteShader();
 
 		// Imgui
 		IMGUI_CHECKVERSION();

@@ -26,7 +26,7 @@ Shader::Shader(const Resource& ShaderSource, Shader::type shaderType) : shaderTy
 }
 
 Shader::~Shader() {
-	glDeleteShader(shaderId_);
+	deleteShader();
 }
 
 bool Shader::cmp::operator()(const Shader* a, const Shader* b) const {
@@ -39,6 +39,14 @@ auto Shader::getShaderId() const -> decltype(shaderId_) {
 
 auto Shader::getShaderType() const -> decltype(shaderType_) {
 	return shaderType_;
+}
+
+void Shader::deleteShader()
+{
+	if (isShaderDeleted_)
+		return;
+	glDeleteShader(shaderId_);
+	isShaderDeleted_ = true;
 }
 
 void Shader::setUniform(std::string_view name, GLfloat value) const {

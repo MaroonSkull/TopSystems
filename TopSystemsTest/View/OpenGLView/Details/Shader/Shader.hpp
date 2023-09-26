@@ -20,6 +20,7 @@ private:
 	Shader::type shaderType_ = Shader::type::Vertex; // Default value
 	const std::string source_;
 	GLuint shaderId_{};
+	bool isShaderDeleted_{ false };
 
 public:
 	Shader(const Resource& Source, Shader::type);
@@ -31,6 +32,7 @@ public:
 
 	auto getShaderId() const -> decltype(shaderId_);
 	auto getShaderType() const -> decltype(shaderType_);
+	void deleteShader();
 
 	void setUniform(std::string_view, GLfloat) const;
 	void setUniform(std::string_view, const std::array<GLfloat, 4>&) const;
