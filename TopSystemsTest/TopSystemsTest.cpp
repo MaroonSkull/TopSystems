@@ -14,9 +14,6 @@ int main() {
 
 			pView->draw();
 		}
-
-		// Under VisualStudio, this must be called before main finishes to workaround a known VS issue
-		spdlog::drop_all();
 	}
 	catch (const std::runtime_error& e) {
 		spdlog::error("std::runtime_error: {}", e.what());
@@ -30,5 +27,7 @@ int main() {
 	catch (...) {
 		spdlog::error("Unknown exception!");
 	}
+	// Under VisualStudio, this must be called before main finishes to workaround a known VS issue
+	spdlog::drop_all();
 	return 0;
 }

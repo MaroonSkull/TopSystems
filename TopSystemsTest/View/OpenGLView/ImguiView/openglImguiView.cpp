@@ -185,10 +185,10 @@ void OpenglImguiView::draw() {
 	if (isRescaled_)
 		rescale_framebuffer();
 
-	Pipeline_->useProgram();
-
 	glClearColor(0.9f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	Pipeline_->useProgram();
 
 	glBindVertexArray(VAO_);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
