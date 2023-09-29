@@ -1,15 +1,17 @@
 ﻿#include <openglImguiView.hpp>
+#include <glm/glm.hpp>
 #include <spdlog/spdlog.h>
 #include <sstream>
+#include <glm/ext/matrix_clip_space.hpp>
 
 OpenglImguiView::OpenglImguiView(FlatFigureModel* pModel, IController* pController) : GLFW_(glfw::init()) {
 	try {
 		// Window
 		glfw::WindowHints hints;
 		hints.clientApi = glfw::ClientApi::OpenGl;
+		hints.openglProfile = glfw::OpenGlProfile::Core;
 		hints.contextVersionMajor = 3;
 		hints.contextVersionMinor = 3;
-		hints.openglProfile = glfw::OpenGlProfile::Core;
 		hints.openglForwardCompat = true;
 		hints.apply();
 
@@ -151,39 +153,33 @@ void OpenglImguiView::rescale_framebuffer() {
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO_);
 }
 
-std::optional<ImVec2> OpenglImguiView::renderImgui(ImTextureID renderTexture) {
-	ImGui::NewFrame();
-
-	auto sizes = UI_.DrawGUI(renderTexture);
-	if (frameWidth_ != sizes.first.x || frameHeight_ != sizes.first.y) {
-		isRescaled_ = true;
-		frameWidth_ = sizes.first.x;
-		frameHeight_ = sizes.first.y;
-	}
-
-	ImGui::Render();
-	return sizes.second;
-}
-
 void OpenglImguiView::draw() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 
-	auto mousePosition = renderImgui((ImTextureID)textureId_);
-	if (mousePosition.has_value()) {
-		// передаём в контроллер в обязательном порядке, пусть он разбирается
-		// convert to normalised coords
-		auto normX = mousePosition.value().x * (frameWidth_ / 2.0 + 1.0);
-		auto normY = mousePosition.value().y * (-frameHeight_ / 2.0 - 1.0);
-		vertices_.at(0) = normX;
-		vertices_.at(1) = normY;
-	}
+	// reinterpret_cast тут неизбежен, это вынужденная мера, чтобы передать opengl текстуру из GLFWPP в imgui
+	auto [frameSizes, mousePosition] = UI_.DrawGUI(reinterpret_cast<ImTextureID>(textureId_));
+	
 	// Render on the whole framebuffer
 	glViewport(0, 0, frameWidth_, frameHeight_);
 	// Render to our framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO_);
-	if (isRescaled_)
+	// Rescale binded framebuffer
+	if (frameWidth_ != frameSizes.x || frameHeight_ != frameSizes.y) {
+		frameWidth_ = frameSizes.x;
+		frameHeight_ = frameSizes.y;
 		rescale_framebuffer();
+	}
+
+	if (mousePosition) {
+		// передаём в контроллер в обязательном порядке, пусть он разбирается
+		// convert to normalised coords via glm
+		auto &&[x, y] = mousePosition.value();
+		glm::mat4 ortho = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 100.0f);
+		vertices_.at(0) = x / frameWidth_;
+		vertices_.at(1) = y / frameHeight_;
+	}
+	
 
 	glClearColor(0.9f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -191,8 +187,17 @@ void OpenglImguiView::draw() {
 	Pipeline_->useProgram();
 
 	glBindVertexArray(VAO_);
+	
+	if (mousePosition) {
+		// получаем данные из модели и отправляем в опенгл
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, vertices_.size() * sizeof(vertices_.at(0)), vertices_.data());
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+	}
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glUseProgram(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -32,7 +32,6 @@ private:
 	GLuint FBO_{}; // frame buffer object
 	GLuint RBO_{}; // rendering buffer object
 	GLuint textureId_{}; // the texture id we'll need later to create a texture
-	bool isRescaled_{ false };
 	// todo tmp, move to model
 	std::vector<GLfloat> vertices_{};
 
@@ -40,8 +39,6 @@ private:
 	void create_triangle();
 	void create_framebuffer();
 	void rescale_framebuffer();
-
-	std::optional<ImVec2> renderImgui(ImTextureID renderTexture);
 public:
 	// init glfwpp, glad, window, imgui
 	OpenglImguiView(FlatFigureModel*, IController*);

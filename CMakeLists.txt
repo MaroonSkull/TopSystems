@@ -29,6 +29,7 @@ add_subdirectory ("Dependencies")
 
 target_include_directories (${PROJECT_NAME}
     PUBLIC TopSystemsTest
+    PUBLIC glm
     PUBLIC ${STAGING_DIR}/include/ # spdlog
 )
 
@@ -52,6 +53,7 @@ foreach (library
     #OpenGL::GL
     glad
     GLFWPP
+    glm
     imgui
     EmbedResource
 # sources

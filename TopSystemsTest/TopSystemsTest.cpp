@@ -2,7 +2,6 @@
 
 int main() {
 	try {
-		//model here
 		FlatFigureModel* pModel = new FlatFigureModel();
 		IController *pController = new OpenglImguiController(pModel);
 		IView* pView = new OpenglImguiView(pModel, pController);
@@ -10,7 +9,6 @@ int main() {
 		while (!pView->shouldClose()) {
 			// отлавливаем все события
 			glfw::pollEvents();
-
 
 			pView->draw();
 		}

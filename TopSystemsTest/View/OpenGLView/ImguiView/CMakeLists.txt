@@ -15,6 +15,7 @@ target_link_libraries(view
 	PUBLIC
 		glad
 		GLFWPP
+		glm
 		imgui
 		EmbedResource
 		IView

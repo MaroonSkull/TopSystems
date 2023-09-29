@@ -14,6 +14,9 @@ set(GLFWPP_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # disable building examples
 add_subdirectory_checked (${CMAKE_CURRENT_SOURCE_DIR}/glfwpp)
 add_dependencies(${PROJECT_NAME} GLFWPP)
 
+add_subdirectory(glm)
+add_dependencies(${PROJECT_NAME} glm)
+
 # imgui
 add_library (imgui
     imgui/imgui.cpp

@@ -117,7 +117,8 @@ void GUI::ShowSimpleOverlay() {
 }
 
 std::pair<ImVec2, std::optional<ImVec2>> GUI::DrawGUI(ImTextureID renderTexture) {
-	ShowMainMenuBar();
+    ImGui::NewFrame();
+    ShowMainMenuBar();
 	ShowDockSpace();
 	ShowLog();
 	ShowSidePanel();
@@ -125,6 +126,7 @@ std::pair<ImVec2, std::optional<ImVec2>> GUI::DrawGUI(ImTextureID renderTexture)
 	if (isCanvasHovered_) ShowSimpleOverlay();
 
 	ShowDemoWindow();
+    ImGui::Render();
 
     return (isCanvasHovered_) ?
         std::pair<ImVec2, std::optional<ImVec2>>(canvasSize, mousePositionRelative_) :
