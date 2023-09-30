@@ -7,13 +7,29 @@
 // тут будет обработка всех действий пользователя, вызов модели
 class OpenglImguiController final : public IController {
 private:
-	void tryCatchCallback();
+	FlatFigureModel* pModel_;
+
+	float mousePositionNormalizedX_{};
+	float mousePositionNormalizedY_{};
+	InputState currentStateLeftMouseButton_{ InputState::undefined };
+	InputState currentStateRightMouseButton_{ InputState::undefined };
+	InputState currentState_;
+	InputState currentState_;
+	InputState currentState_;
+	InputState currentState_;
+	InputState currentState_;
+	InputState currentState_;
 public:
 	OpenglImguiController(FlatFigureModel *);
 
-	void onLeftMouseButton(); // обработка расположения фигур
-	void onRightMouseButton(); // перемещение по пространству
+	// события непосредственного ввода
+	void onLeftMouseButton(InputState); // обработка расположения фигур
+	void onWheelMouseButton(InputState); // ресайз + перемещение по пространству
+	void onRightMouseButton(InputState); // перемещение по пространству
+	void onMouseHover(InputState, float x, float y);
+	void onScroll(float);
 
+	// события GUI
 	void addTriangleByCenter();
 	void addTriangleByCorners();
 	void addSquareByCenter();

@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 class IController {
-public:
-	enum class state {
+protected:
+	enum class ControllerState {
 		none,
 		triangleByCenter_centerSelected,
 		triangleByCorners_firstCornerSelected,
@@ -14,9 +14,25 @@ public:
 		circleByCenter_centerSelected,
 		// кривые тут же
 	};
-	virtual void onLeftMouseButton() = 0;
-	virtual void onRightMouseButton() = 0;
+	ControllerState currentControllerState_{ ControllerState::none };
+public:
+	// события непосредственного ввода
+	enum class InputState {
+		undefined,
+		// текущее состояние клавиши
+		down,
+		released,
+		// алиасы для позиции мыши
+		hovered = down,
+		unhovered = released
+	};
+	virtual void onLeftMouseButton(InputState) = 0;
+	virtual void onWheelMouseButton(InputState) = 0;
+	virtual void onRightMouseButton(InputState) = 0;
+	virtual void onMouseHover(InputState, float x, float y) = 0; // x, y - нормализованные координаты (0..1)
+	virtual void onScroll(float) = 0;
 
+	// события GUI
 	virtual void addTriangleByCenter() = 0;
 	virtual void addTriangleByCorners() = 0;
 	virtual void addSquareByCenter() = 0;
