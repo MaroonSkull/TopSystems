@@ -1,4 +1,4 @@
-#include <GUI.hpp>
+﻿#include <GUI.hpp>
 using namespace ImGui;
 
 void GUI::ShowMainMenuBar() {
@@ -78,6 +78,9 @@ ImVec2 GUI::ShowCanvas(ImTextureID renderTexture) {
         // Using a Child allow to fill all the space of the window.
         // It also alows customization
         BeginChild("##Canvas", ImVec2(0.0f, 0.0f), false, ImGuiWindowFlags_NoMove);
+        // Разрешаем перехватывать событие прокрутки колесика
+        ImGui::SetItemKeyOwner(ImGuiKey_MouseWheelY);
+        momentWheel_ = ImGui::GetIO().MouseWheel;
         // Get the size of the child (i.e. the whole draw size of the windows).
         canvasSize = GetWindowSize();
 
@@ -116,7 +119,7 @@ void GUI::ShowSimpleOverlay() {
     End();
 }
 
-std::pair<ImVec2, std::optional<ImVec2>> GUI::DrawGUI(ImTextureID renderTexture) {
+std::tuple<ImVec2, float, std::optional<ImVec2>> GUI::DrawGUI(ImTextureID renderTexture) {
     ImGui::NewFrame();
     ShowMainMenuBar();
 	ShowDockSpace();
@@ -129,6 +132,6 @@ std::pair<ImVec2, std::optional<ImVec2>> GUI::DrawGUI(ImTextureID renderTexture)
     ImGui::Render();
 
     return (isCanvasHovered_) ?
-        std::pair<ImVec2, std::optional<ImVec2>>(canvasSize, mousePositionRelative_) :
-        std::pair<ImVec2, std::optional<ImVec2>>(canvasSize, std::nullopt);
+        std::tuple<ImVec2, float, std::optional<ImVec2>>(canvasSize, momentWheel_, mousePositionRelative_) :
+        std::tuple<ImVec2, float, std::optional<ImVec2>>(canvasSize, momentWheel_, std::nullopt);
 }

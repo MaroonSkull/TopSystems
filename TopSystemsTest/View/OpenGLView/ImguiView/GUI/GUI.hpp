@@ -14,6 +14,7 @@ private:
 	ImGuiWindowFlags canvasFlags_ = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoInputs;
 	bool isCanvasHovered_{};
 	ImVec2 mousePositionRelative_{};
+	float momentWheel_{};
 
 	bool circleSegmentsOverride = false;
 	static const int circleSegmentsOverride_v_default = 15;
@@ -32,5 +33,5 @@ private:
 	// void ShowListPanel()
 	void ShowSimpleOverlay(); // пусть плавает за мышью и показывает её координаты, если они в пределах канваса
 public:
-	std::pair<ImVec2, std::optional<ImVec2>> DrawGUI(ImTextureID renderTexture);
+	std::tuple<ImVec2, float, std::optional<ImVec2>> DrawGUI(ImTextureID renderTexture);
 };
