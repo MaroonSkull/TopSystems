@@ -3,8 +3,11 @@
 #include <spdlog/spdlog.h>
 #include <sstream>
 #include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
 
-OpenglImguiView::OpenglImguiView(FlatFigureModel* pModel, IController* pController) : GLFW_(glfw::init()) {
+OpenglImguiView::OpenglImguiView(FlatFigureModel* pModel, IController* pController) : GLFW_(glfw::init()), pModel_(pModel), pController_(pController) {
+	if (pModel_ == nullptr || pController_ == nullptr)
+		throw std::exception{ "pModel or pControler cannot be nullptr in view constructor!" };
 	try {
 		// Window
 		glfw::WindowHints hints;
@@ -106,8 +109,7 @@ void OpenglImguiView::create_triangle() {
 	glGenBuffers(1, &VBO_);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_);
 	// GL_DYNAMIC_DRAW - будем интенсивно менять данные.
-	// Можно ещё попробовать STREAM
-	glBufferData(GL_ARRAY_BUFFER, vertices_.size() * sizeof(vertices_.at(0)), vertices_.data(), GL_DYNAMIC_DRAW);
+	//glBufferData(GL_ARRAY_BUFFER, vertices_.size() * sizeof(vertices_.at(0)), vertices_.data(), GL_DYNAMIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
@@ -153,13 +155,26 @@ void OpenglImguiView::rescale_framebuffer() {
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO_);
 }
 
+glm::mat4 OpenglImguiView::transform(glm::vec2 const& Orientation, glm::vec3 const& Translate, glm::vec3 const& Up)
+{
+	glm::mat4 Proj = glm::perspective(glm::radians(45.f), 1.33f, 0.1f, 10.f);
+	//glm::mat4 Proj = glm::ortho(0.0f, Width, 0.0f, Height, 0.1f, 100.0f);
+	glm::mat4 ViewTranslate = glm::translate(glm::mat4(1.f), Translate);
+	glm::mat4 ViewRotateX = glm::rotate(ViewTranslate, Orientation.y, Up);
+	glm::mat4 View = glm::rotate(ViewRotateX, Orientation.x, Up);
+	glm::mat4 Model = glm::mat4(1.0f);
+	return Proj * View * Model;
+}
+
 void OpenglImguiView::draw() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 
 	// reinterpret_cast тут неизбежен, это вынужденная мера, чтобы передать opengl текстуру из GLFWPP в imgui
-	auto [frameSizes, mousePosition] = UI_.DrawGUI(reinterpret_cast<ImTextureID>(textureId_));
+	auto [frameSizes, momentWheel, mousePosition] = UI_.DrawGUI(reinterpret_cast<ImTextureID>(textureId_));
 	
+	// todo тут пригодится observer. Если модель и вью не изменились, новую текстуру не рендерим
+
 	// Render on the whole framebuffer
 	glViewport(0, 0, frameWidth_, frameHeight_);
 	// Render to our framebuffer
@@ -171,14 +186,26 @@ void OpenglImguiView::draw() {
 		rescale_framebuffer();
 	}
 
+	// обработка операций непосредственного ввода с помощью канваса
+	// мб в лямбду завернуть, коллбэк оформить 
 	if (mousePosition) {
-		// передаём в контроллер в обязательном порядке, пусть он разбирается
+		auto&& [x, y] = mousePosition.value();
+		pController_->onMouseHover(IController::InputState::hovered, x / frameWidth_, y / frameHeight_);
+
+		if (ImGui::IsMouseDown(ImGuiMouseButton_Left)) pController_->onLeftMouseButton(IController::InputState::down);
+		if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) pController_->onLeftMouseButton(IController::InputState::released);
+
+		if (ImGui::IsMouseDown(ImGuiMouseButton_Right)) pController_->onRightMouseButton(IController::InputState::down);
+		if (ImGui::IsMouseReleased(ImGuiMouseButton_Right)) pController_->onRightMouseButton(IController::InputState::released);
+
+		if (ImGui::IsMouseDown(ImGuiMouseButton_Middle)) pController_->onWheelMouseButton(IController::InputState::down);
+		if (ImGui::IsMouseReleased(ImGuiMouseButton_Middle)) pController_->onWheelMouseButton(IController::InputState::released);
+
+		if (momentWheel != 0.0f) pController_->onScroll(momentWheel);
+
 		// convert to normalised coords via glm
-		auto &&[x, y] = mousePosition.value();
-		glm::mat4 ortho = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 100.0f);
-		vertices_.at(0) = x / frameWidth_;
-		vertices_.at(1) = y / frameHeight_;
 	}
+	else pController_->onMouseHover(IController::InputState::unhovered, 0.0f, 0.0f);
 	
 
 	glClearColor(0.9f, 0.1f, 0.1f, 1.0f);
@@ -191,11 +218,12 @@ void OpenglImguiView::draw() {
 	if (mousePosition) {
 		// получаем данные из модели и отправляем в опенгл
 		glBindBuffer(GL_ARRAY_BUFFER, VBO_);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, vertices_.size() * sizeof(vertices_.at(0)), vertices_.data());
+		//glBufferSubData(GL_ARRAY_BUFFER, 0, vertices_.size() * sizeof(vertices_.at(0)), vertices_.data());
+		glBufferData(GL_ARRAY_BUFFER, vertices_.size() * sizeof(vertices_.at(0)), vertices_.data(), GL_DYNAMIC_DRAW);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
 	}
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawArrays(GL_TRIANGLES, 0, 9);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -213,6 +241,11 @@ void OpenglImguiView::draw() {
 
 	// меняем буфер для следующего раза
 	Window_->swapBuffers();
+	// обновляем показания FPS
+	std::stringstream title;
+	title << "Interview test | average FPS : " << static_cast<uint32_t>(ImGui::GetIO().Framerate)
+		  <<               ", momental FPS : " << static_cast<uint32_t>(1.0f / ImGui::GetIO().DeltaTime);
+	Window_->setTitle(title.str().c_str());
 }
 
 inline bool OpenglImguiView::shouldClose() const {
