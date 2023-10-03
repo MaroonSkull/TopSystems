@@ -5,6 +5,8 @@ OpenglImguiController::OpenglImguiController(FlatFigureModel* pModel) : pModel_(
 		throw std::exception{ "pModel cannot be nullptr in controller constructor!" };
 }
 
+// Обновлять состояние текущей фигуры при ЛКМ
+// currentControllerState_
 void OpenglImguiController::onLeftMouseButton(InputState state) {
 	if (state == currentStateLeftMouseButton_)
 		return;
@@ -24,29 +26,80 @@ void OpenglImguiController::onLeftMouseButton(InputState state) {
 	}
 }
 
+// На тачпадах возможно отсутствие функционала нажатия на СКМ
+// Можно повесить в 3д-пространстве выбор какой-то фиксированной конфигурации камеры
+// (позиция + направление взгляда, мб привязка к осям)
 void OpenglImguiController::onWheelMouseButton(InputState state) {
-	spdlog::info("onWheelMouseButton {}",
-		(state == InputState::down) ? "pressed" :
-		(state == InputState::released) ? "released" : "undefined");
+	if (state == currentStateWheelMouseButton_)
+		return;
+	switch (currentStateWheelMouseButton_ = state) {
+	case InputState::down:
+		spdlog::info("onWheelMouseButton pressed");
+		break;
+
+	case InputState::released:
+		spdlog::info("onWheelMouseButton released");
+		break;
+
+	default:
+	case InputState::undefined:
+		spdlog::error("onWheelMouseButton undefined");
+		throw std::exception{ "undefined state have been recieved in OpenglImguiController::onWheelMouseButton" };
+	}
 }
 
+// ПКМ отвечает за перемещение
+// При зажатой пкм следовать за позицией указателя, (смещать на дельту?)
 void OpenglImguiController::onRightMouseButton(InputState state) {
-	spdlog::info("onRightMouseButton {}",
-		(state == InputState::down) ? "pressed" :
-		(state == InputState::released) ? "released" : "undefined");
+	if (state == currentStateRightMouseButton_)
+		return;
+	switch (currentStateRightMouseButton_ = state) {
+	case InputState::down:
+		spdlog::info("onRightMouseButton pressed");
+		break;
+
+	case InputState::released:
+		spdlog::info("onRightMouseButton released");
+		break;
+
+	default:
+	case InputState::undefined:
+		spdlog::error("onRightMouseButton undefined");
+		throw std::exception{ "undefined state have been recieved in OpenglImguiController::onRightMouseButton" };
+	}
 }
 
+// Обновляем текущие xy указателя, записываем дельты 
 void OpenglImguiController::onMouseHover(InputState state, float x, float y) {
-	spdlog::info("onMouseHover {}",
-		(state == InputState::hovered) ? "hovered" :
-		(state == InputState::unhovered) ? "unhovered" : "undefined");
+	// todo тут проблема при активном перемещении мыши или при низком фпс:
+	// окно с координатами мыши перехватывает событие hover и срабатывает unhovered/hovered
+	if (state == currentStateMouseHover_)
+		return;
+	switch (currentStateMouseHover_ = state) {
+	case InputState::hovered:
+		spdlog::info("onMouseHover hovered");
+		break;
+
+	case InputState::released:
+		spdlog::info("onMouseHover unhovered");
+		break;
+
+	default:
+	case InputState::undefined:
+		spdlog::error("onMouseHover undefined");
+		throw std::exception{ "undefined state have been recieved in OpenglImguiController::onMouseHover" };
+	}
 }
 
+// Изменение масштаба видимой области
 void OpenglImguiController::onScroll(float momentWheel) {
-	spdlog::info("onScroll {}, {}",
-		(momentWheel > 0.0f) ? "up" :
-		(momentWheel < 0.0f) ? "down" : "undefined",
-		momentWheel);
+	if (momentWheel == 0.0f)
+		return;
+
+	if (momentWheel > 0.0f)
+		spdlog::info("onScroll up, {}", momentWheel);
+	else
+		spdlog::info("onScroll down, {}", momentWheel);
 }
 
 void OpenglImguiController::addTriangleByCenter()

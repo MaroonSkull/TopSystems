@@ -12,13 +12,9 @@ private:
 	float mousePositionNormalizedX_{};
 	float mousePositionNormalizedY_{};
 	InputState currentStateLeftMouseButton_{ InputState::undefined };
+	InputState currentStateWheelMouseButton_{ InputState::undefined };
 	InputState currentStateRightMouseButton_{ InputState::undefined };
-	InputState currentState_;
-	InputState currentState_;
-	InputState currentState_;
-	InputState currentState_;
-	InputState currentState_;
-	InputState currentState_;
+	InputState currentStateMouseHover_{ InputState::undefined };
 public:
 	OpenglImguiController(FlatFigureModel *);
 
