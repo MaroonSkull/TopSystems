@@ -1,6 +1,6 @@
 ﻿#include <openglImguiController.hpp>
 
-OpenglImguiController::OpenglImguiController(FlatFigureModel* pModel) : pModel_(pModel) {
+OpenglImguiController::OpenglImguiController(model::FlatFigures* pModel) : pModel_(pModel) {
 	if (pModel_ == nullptr)
 		throw std::exception{ "pModel cannot be nullptr in controller constructor!" };
 }

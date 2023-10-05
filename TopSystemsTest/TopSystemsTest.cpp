@@ -2,7 +2,7 @@
 
 int main() {
 	try {
-		FlatFigureModel* pModel = new FlatFigureModel();
+		model::FlatFigures* pModel = new model::FlatFigures();
 		IController *pController = new OpenglImguiController(pModel);
 		IView* pView = new OpenglImguiView(pModel, pController);
 

@@ -1,8 +1,8 @@
 #include <flatFigureModel.hpp>
 
-const std::string FlatFigureModel::Triangle::name = { "Triangle" };
-const std::string FlatFigureModel::Quad::name = { "Quad" };
-const std::string FlatFigureModel::Circle::name = { "Circle" };
-const std::string FlatFigureModel::Ngon::name = { "Ngon" };
-const std::string FlatFigureModel::CurveBezier3::name = { "CurveBezier3" };
-const std::string FlatFigureModel::CurveBezier4::name = { "CurveBezier4" };
+const std::string model::Triangle::name = { "Triangle" };
+const std::string model::Quad::name = { "Quad" };
+const std::string model::Circle::name = { "Circle" };
+const std::string model::Ngon::name = { "Ngon" };
+const std::string model::CurveBezier3::name = { "CurveBezier3" };
+const std::string model::CurveBezier4::name = { "CurveBezier4" };

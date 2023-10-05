@@ -5,7 +5,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-OpenglImguiView::OpenglImguiView(FlatFigureModel* pModel, IController* pController) : GLFW_(glfw::init()), pModel_(pModel), pController_(pController) {
+OpenglImguiView::OpenglImguiView(model::FlatFigures* pModel, IController* pController) : GLFW_(glfw::init()), pModel_(pModel), pController_(pController) {
 	if (pModel_ == nullptr || pController_ == nullptr)
 		throw std::exception{ "pModel or pControler cannot be nullptr in view constructor!" };
 	try {

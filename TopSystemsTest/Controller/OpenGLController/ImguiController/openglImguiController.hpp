@@ -7,7 +7,7 @@
 // тут будет обработка всех действий пользователя, вызов модели
 class OpenglImguiController final : public IController {
 private:
-	FlatFigureModel* pModel_;
+	model::FlatFigures* pModel_;
 
 	float mousePositionNormalizedX_{};
 	float mousePositionNormalizedY_{};
@@ -16,7 +16,7 @@ private:
 	InputState currentStateRightMouseButton_{ InputState::undefined };
 	InputState currentStateMouseHover_{ InputState::undefined };
 public:
-	OpenglImguiController(FlatFigureModel *);
+	OpenglImguiController(model::FlatFigures *);
 
 	// события непосредственного ввода
 	void onLeftMouseButton(InputState); // обработка расположения фигур

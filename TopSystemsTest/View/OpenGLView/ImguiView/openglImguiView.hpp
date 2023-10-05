@@ -20,7 +20,7 @@ class OpenglImguiView final : public IView {
 	friend class OpenglImguiController;
 private:
 	glfw::GlfwLibrary GLFW_; // RAII
-	FlatFigureModel* pModel_ = nullptr;
+	model::FlatFigures* pModel_ = nullptr;
 	IController* pController_ = nullptr;
 	glfw::Window* Window_ = nullptr;
 	GUI UI_{};
@@ -46,7 +46,7 @@ private:
 	glm::mat4 transform(glm::vec2 const& Orientation, glm::vec3 const& Translate, glm::vec3 const& Up);
 public:
 	// init glfwpp, glad, window, imgui
-	OpenglImguiView(FlatFigureModel*, IController*);
+	OpenglImguiView(model::FlatFigures*, IController*);
 	~OpenglImguiView();
 
 	void draw();

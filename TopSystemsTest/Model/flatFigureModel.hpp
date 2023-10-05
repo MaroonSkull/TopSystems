@@ -1,25 +1,15 @@
 ﻿#pragma once
 #include <string>
+#include <memory>
 #include <variant>
-#include <vector>
+#include <list>
 
+namespace model {
 
-class FlatFigureModel {
-public:
 	struct Point {
 		float x{ 0.f };
 		float y{ 0.f };
 		float z{ 0.f };
-	};
-
-	// структура, которая хранит сервисные данные о конкретной фигуре
-	template <class T>
-	class Figure : public T {
-	private:
-		inline static uint32_t counter{ 0 };
-	public:
-		const uint32_t id{ counter++ };
-		std::string name{ T.name + " №" + id};
 	};
 
 	struct Triangle {
@@ -66,29 +56,58 @@ public:
 		Point second;
 	};
 
-	FlatFigureModel() = default;
-	~FlatFigureModel() = default;
+	class FlatFigures {
+	public:
+		// структура, которая хранит сервисные данные о конкретной фигуре
+		template <class T>
+		struct Figure : public T {
+		private:
+			inline static uint32_t counter_{ 0 };
+		public:
+			// const приводит к C2280 в MSVC, т.к. конструктор присваивания автоматически удаляется
+			uint32_t id{ counter_++ };
+			std::string name_{ T::name + " №" + id};
+			T obj_; // да, это intrusive
+		};
 
-	template <class T>
-	Figure<T> *createFigure() {
-		Figures_.push_back(Figure<T>);
-		return Figures_.;
-	}
-private:
-	std::vector<
-		std::variant<
-			Triangle,
-			Quad,
-			Circle,
-			Ngon,
-			CurveBezier3,
-			CurveBezier4
-		>
-	> Figures_;
-};
+		using allFigures_t = std::variant<
+			FlatFigures::Figure<Triangle>,
+			FlatFigures::Figure<Quad>,
+			FlatFigures::Figure<Circle>,
+			FlatFigures::Figure<Ngon>,
+			FlatFigures::Figure<CurveBezier3>,
+			FlatFigures::Figure<CurveBezier4>
+		>;
 
-// вектор указателей на вариант
-// то же самое что лист по памяти
+		FlatFigures() = default;
+		~FlatFigures() = default;
+
+		template <class T>
+		void createFigure() {
+			Figures_.push_back(Figure<T>);
+		}
+	private:
+		std::list<allFigures_t> Figures_;
+
+		class Memento {
+			friend class FlatFigures;
+		private:
+			std::list<allFigures_t> Figures_;
+		public:
+			Memento(const std::list<allFigures_t>& Figures) : Figures_(Figures) {}
+			~Memento() = default;
+		};
+
+		std::unique_ptr<Memento> createMemento() {
+			return std::make_unique<Memento>(Memento(Figures_));
+		}
+
+		void restoreFromMemento(const Memento& Mem) {
+			Figures_ = Mem.Figures_;
+		}
+	};
+
+}
 
 // наследовать всё от фигуры, полиморфизм вместо варианта
 // вектор полиморфных указателей, тогда надо сильно меньше шаблонов, код проще
