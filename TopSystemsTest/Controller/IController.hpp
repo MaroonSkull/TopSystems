@@ -4,13 +4,19 @@ class IController {
 protected:
 	enum class ControllerState {
 		none,
+		triangleByCenter,
 		triangleByCenter_centerSelected,
+		triangleByCorners,
 		triangleByCorners_firstCornerSelected,
 		triangleByCorners_secondCornerSelected,
+		squareByCenter,
 		squareByCenter_centerSelected,
+		squareByCorners,
 		squareByCorners_firstCornerSelected,
 		squareByCorners_secondCornerSelected,
+		ngonByCenter,
 		ngonByCenter_centerSelected,
+		circleByCenter,
 		circleByCenter_centerSelected,
 		// кривые тут же
 	};
@@ -22,7 +28,7 @@ public:
 		// текущее состояние клавиши
 		down,
 		released,
-		// алиасы для позиции мыши
+		// алиасы для позиции указателя
 		hovered = down,
 		unhovered = released
 	};
