@@ -10,9 +10,18 @@ OpenglImguiController::OpenglImguiController(model::FlatFigures* pModel) : pMode
 void OpenglImguiController::onLeftMouseButton(InputState state) {
 	if (state == currentStateLeftMouseButton_)
 		return;
+	// todo можно switch-case сменить на std::map и набор лямбд.
+	// Или вообще на универсальную шаблонную функцию (с TAD?)
 	switch (currentStateLeftMouseButton_ = state) {
 	case InputState::down:
 		spdlog::info("onLeftMouseButton pressed");
+		switch (currentControllerState_) {
+		case ControllerState::triangleByCorners:
+			spdlog::info("triangleByCorners selected");
+			pModel_->createFigure<model::Triangle>(mousePositionNormalizedX_, mousePositionNormalizedY_);
+			break;
+
+		}
 		break;
 
 	case InputState::released:
@@ -102,30 +111,29 @@ void OpenglImguiController::onScroll(float momentWheel) {
 		spdlog::info("onScroll down, {}", momentWheel);
 }
 
-void OpenglImguiController::addTriangleByCenter()
-{
+void OpenglImguiController::addTriangleByCenter() {
+	currentControllerState_ = ControllerState::triangleByCenter;
 }
 
-void OpenglImguiController::addTriangleByCorners()
-{
+void OpenglImguiController::addTriangleByCorners() {
+	currentControllerState_ = ControllerState::triangleByCorners;
 }
 
-void OpenglImguiController::addSquareByCenter()
-{
+void OpenglImguiController::addSquareByCenter() {
+	currentControllerState_ = ControllerState::squareByCenter;
 }
 
-void OpenglImguiController::addSquareByCorners()
-{
+void OpenglImguiController::addSquareByCorners() {
+	currentControllerState_ = ControllerState::squareByCorners;
 }
 
-void OpenglImguiController::addNgonByCenter()
-{
+void OpenglImguiController::addNgonByCenter() {
+	currentControllerState_ = ControllerState::ngonByCenter;
 }
 
-void OpenglImguiController::addCircleByCenter()
-{
+void OpenglImguiController::addCircleByCenter() {
+	currentControllerState_ = ControllerState::circleByCenter;
 }
 
-void OpenglImguiController::removeFigure()
-{
-}
+// на будущее, сначала надо научиться определять коллизии
+void OpenglImguiController::removeFigure() {}
