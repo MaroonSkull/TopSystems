@@ -2,10 +2,11 @@
 #include <string>
 #include <memory>
 #include <variant>
-#include <list>
+#include <vector>
 
 namespace model {
 
+	// todo добавить выбор точности, попробовать концепты из C++20
 	struct Point {
 		float x{ 0.f };
 		float y{ 0.f };
@@ -114,22 +115,34 @@ namespace model {
 			FlatFigures::Figure<CurveBezier4>
 		>;
 
+	private:
+		std::vector<allFigures_t> Figures_;
+
+		template<class... Ts>
+		struct overloaded : Ts... { using Ts::operator()...; };
+		template<class... Ts>
+		overloaded(Ts...) -> overloaded<Ts...>;
+
+	public:
 		FlatFigures() = default;
 		~FlatFigures() = default;
 
 		template <class T>
-		void createFigure() {
-			Figures_.push_back(Figure<T>);
+		void createFigure(float x, float y) {
+			Figures_.push_back(Figure<T>{});
+			auto figure = Figures_.back();
+			if constexpr (std::is_same_v<T, Triangle>) {
+				spdlog::info("Triangle in model");
+				// тут сохраняем все три точки в одном месте
+			}
 		}
-	private:
-		std::list<allFigures_t> Figures_;
 
 		class Memento {
 			friend class FlatFigures;
 		private:
-			std::list<allFigures_t> Figures_;
+			std::vector<allFigures_t> Figures_;
 		public:
-			Memento(const std::list<allFigures_t>& Figures) : Figures_(Figures) {}
+			Memento(const std::vector<allFigures_t>& Figures) : Figures_(Figures) {}
 			~Memento() = default;
 		};
 

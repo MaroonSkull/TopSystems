@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <queue>
 #include <spdlog/spdlog.h>
 #include <imgui.h>
 #include <IController.hpp>
@@ -8,6 +9,7 @@
 class OpenglImguiController final : public IController {
 private:
 	model::FlatFigures* pModel_;
+	std::queue<model::FlatFigures::Memento> modelMementoQueue_;
 
 	float mousePositionNormalizedX_{};
 	float mousePositionNormalizedY_{};
