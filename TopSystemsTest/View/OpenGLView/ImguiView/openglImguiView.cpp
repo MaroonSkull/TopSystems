@@ -46,6 +46,8 @@ OpenglImguiView::OpenglImguiView(model::FlatFigures* pModel, IController* pContr
 		Fragment_->deleteShader();
 		Vertex_->deleteShader();
 
+		// todo Похоже тут есть баг
+		// надо генерировать два фреймбуффера и в них по очереди отрисовывать
 		create_framebuffer();
 
 		// Imgui
