@@ -56,25 +56,60 @@ namespace model {
 		Point second;
 	};
 
+	enum class isScribed {
+		no,
+		inscribed,
+		circumscribed
+	};
+
 	class FlatFigures {
 	public:
-		// структура, которая хранит сервисные данные о конкретной фигуре
-		template <class T>
-		struct Figure : public T {
+		template <isScribed _scribed>
+		struct ScribedTraits {
+			static const bool value = true;
+			float angle = 0.0f; // in radians, start from 0 at positive x axis across positive y to positive x = 2*pi, counterclock-wise
+			float r = 0.0f;
+		};
+		template <> struct ScribedTraits<isScribed::no> {
+			static const bool value = false;
+		};
+
+		// интрузивная структура, которая хранит сервисные данные о конкретной фигуре
+		template <class _T, isScribed _scribed = isScribed::no>
+		struct Figure : public _T {
 		private:
 			inline static uint32_t counter_{ 0 };
 		public:
 			// const приводит к C2280 в MSVC, т.к. конструктор присваивания автоматически удаляется
-			uint32_t id{ counter_++ };
-			std::string name_{ T::name + " №" + id};
-			T obj_; // да, это intrusive
+			uint32_t id_{};
+			std::string name_{ _T::name + " №" + std::to_string(id_) };
+			_T obj_;
+			[[no_unique_address]] ScribedTraits<_scribed> Round_;
+			Figure(float x = 0.0f, float y = 0.0f, float z = 0.0f) {
+				id_ = counter_++;
+				if constexpr (Round_.value) {
+					if constexpr (std::is_same_v<_T, Triangle>) {
+						spdlog::info("triangle by round");
+					}
+				}
+				else {
+					if constexpr (std::is_same_v<_T, Triangle>) {
+						spdlog::info("triangle by points");
+					}
+				}
+			}
 		};
 
 		using allFigures_t = std::variant<
 			FlatFigures::Figure<Triangle>,
+			FlatFigures::Figure<Triangle, isScribed::inscribed>,
+			FlatFigures::Figure<Triangle, isScribed::circumscribed>,
 			FlatFigures::Figure<Quad>,
+			FlatFigures::Figure<Quad, isScribed::inscribed>,
+			FlatFigures::Figure<Quad, isScribed::circumscribed>,
 			FlatFigures::Figure<Circle>,
-			FlatFigures::Figure<Ngon>,
+			FlatFigures::Figure<Ngon, isScribed::inscribed>,
+			FlatFigures::Figure<Ngon, isScribed::circumscribed>,
 			FlatFigures::Figure<CurveBezier3>,
 			FlatFigures::Figure<CurveBezier4>
 		>;
